@@ -372,7 +372,6 @@ namespace peliculas.carga.Logica
             {
                 var binding = datos.results.bindings.FirstOrDefault();
 
-
                 // Asignar valores a la persona
                 if (binding.ContainsKey("image"))
                 {
