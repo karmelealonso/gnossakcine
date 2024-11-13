@@ -1,0 +1,379 @@
+  // Procesar los directores
+            if (peliculaDTO.Director != null)
+            {
+                string[] directores = peliculaDTO.Director.Split(',');
+                foreach (var director in directores)
+                {
+                    // Eliminar paréntesis y el texto dentro de ellos
+                    string cleanedDirector = Regex.Replace(director, @"\s*\(.*?\)", "").Trim();
+
+                    if (!cleanedDirector.ToLower().Equals(("N/A").ToLower()))
+                    {
+                        hs_nombrePersonas.Add(cleanedDirector);
+                    }
+                }
+            }
+
+            // Procesar los escritores
+            if (peliculaDTO.Writer != null)
+            {
+                string[] escritores = peliculaDTO.Writer.Split(',');
+                foreach (var escritor in escritores)
+                {
+                    // Eliminar paréntesis y el texto dentro de ellos
+                    string cleanedEscritor = Regex.Replace(escritor, @"\s*\(.*?\)", "").Trim();
+
+                    if (!cleanedEscritor.ToLower().Equals(("N/A").ToLower()))
+                    {
+                        hs_nombrePersonas.Add(cleanedEscritor);
+                    }
+                }
+            }
+
+            // Procesar los actores
+            if (peliculaDTO.Actors != null)
+            {
+                string[] actores = peliculaDTO.Actors.Split(',');
+                foreach (var actor in actores)
+                {
+                    // Eliminar paréntesis y el texto dentro de ellos
+                    string cleanedActor = Regex.Replace(actor, @"\s*\(.*?\)", "").Trim();
+
+                    if (!cleanedActor.ToLower().Equals(("N/A").ToLower()))
+                    {
+                        hs_nombrePersonas.Add(cleanedActor);
+                    }
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// See https://aka.ms/new-console-template for more information
+
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using peliculas.carga.DTO;
+using peliculas.carga.Logica;
+using GenerokarmeleOntology;
+using PersonakarmeleOntology;
+using PeliculakarmeleOntology;
+using Gnoss.ApiWrapper.Model;
+using Gnoss.ApiWrapper;
+
+//endregion Conexión con la comunidad
+
+//PROCESAR SOLO LAS 5 PRIMERAS PELÍCULAS A MODO DE PRUEBA
+
+//namespace peliculas.carga
+//{
+//    class Program
+//    {
+//        static void Main(string[] args)
+//        {
+//            // Ruta de la carpeta que contiene los archivos JSON
+//            string folderPath = @"C:\Users\karmelealonso\Desktop\peliculas.carga\peliculas.carga\DATA\";
+
+//            // Obtener todos los archivos JSON de la carpeta
+//            string[] jsonFiles = Directory.GetFiles(folderPath, "*.json");
+
+//            // Verificar si realmente se están obteniendo archivos JSON
+//            Console.WriteLine($"Archivos JSON encontrados: {jsonFiles.Length}");
+
+//            // Lista para almacenar todas las películas
+//            List<PeliculaDTO> peliculasList = new List<PeliculaDTO>();
+
+//            // Variable para contar el número de películas procesadas
+//            int movieCount = 0;
+
+//            // Leer cada archivo JSON y deserializarlo, pero solo los primeros 5
+//            foreach (var file in jsonFiles)
+//            {
+//                // Mostrar cuál archivo estamos procesando
+//                Console.WriteLine($"Procesando archivo: {file}");
+
+//                if (movieCount >= 5) break; // Limitar a las primeras 5 películas
+
+//                try
+//                {
+//                    // Leer el archivo JSON
+//                    string jsonData = File.ReadAllText(file);
+
+//                    // Deserializar el JSON a un objeto PeliculaDTO
+//                    PeliculaDTO pelicula = JsonConvert.DeserializeObject<PeliculaDTO>(jsonData);
+
+//                    // Procesar los campos que contienen valores separados por comas y convertirlos a listas
+//                    pelicula.Writer = string.Join(", ", ConvertToList(pelicula.Writer));
+//                    pelicula.Director = string.Join(", ", ConvertToList(pelicula.Director));
+//                    pelicula.Actors = string.Join(", ", ConvertToList(pelicula.Actors));
+//                    pelicula.Genre = string.Join(", ", ConvertToList(pelicula.Genre));
+//                    pelicula.Country = string.Join(", ", ConvertToList(pelicula.Country));
+//                    pelicula.Language = string.Join(", ", ConvertToList(pelicula.Language));
+//                    pelicula.Awards = string.Join(", ", ConvertToList(pelicula.Awards));
+
+//                    // Agregar el objeto PeliculaDTO a la lista
+//                    peliculasList.Add(pelicula);
+
+//                    // Incrementar el contador de películas procesadas
+//                    movieCount++;
+//                }
+//                catch (Exception ex)
+//                {
+//                    // En caso de error, mostrar el archivo y el error
+//                    Console.WriteLine($"Error al procesar el archivo {file}: {ex.Message}");
+//                }
+//            }
+
+//            // Mostrar cuántas películas fueron procesadas
+//            Console.WriteLine($"Películas procesadas: {peliculasList.Count}");
+
+//            // Mostrar el contenido de todas las películas con todas las propiedades
+//            foreach (var pelicula in peliculasList)
+//            {
+//                Console.WriteLine("---- Movie Details ----");
+//                Console.WriteLine($"Title: {pelicula.Title}");
+//                Console.WriteLine($"Year: {pelicula.Year}");
+//                Console.WriteLine($"IMDB Rating: {pelicula.imdbRating}");
+//                Console.WriteLine($"Rated: {pelicula.Rated}");
+//                Console.WriteLine($"Runtime: {pelicula.Runtime}");
+//                Console.WriteLine($"Production: {pelicula.Production}");
+//                Console.WriteLine($"Website: {pelicula.Website}");
+//                Console.WriteLine($"Released: {pelicula.Released}");
+//                Console.WriteLine($"Plot: {pelicula.Plot}");
+//                Console.WriteLine($"Poster: {pelicula.Poster}");
+
+//                // Imprimir listas procesadas
+//                Console.WriteLine("Genres: " + string.Join(", ", ConvertToList(pelicula.Genre)));
+//                Console.WriteLine("Directors: " + string.Join(", ", ConvertToList(pelicula.Director)));
+//                Console.WriteLine("Writers: " + string.Join(", ", ConvertToList(pelicula.Writer)));
+//                Console.WriteLine("Actors: " + string.Join(", ", ConvertToList(pelicula.Actors)));
+//                Console.WriteLine("Countries: " + string.Join(", ", ConvertToList(pelicula.Country)));
+//                Console.WriteLine("Languages: " + string.Join(", ", ConvertToList(pelicula.Language)));
+//                Console.WriteLine("Awards: " + string.Join(", ", ConvertToList(pelicula.Awards)));
+
+//                // Imprimir ratings
+//                Console.WriteLine("Ratings:");
+//                if (pelicula.Ratings != null)
+//                {
+//                    foreach (var rating in pelicula.Ratings)
+//                    {
+//                        Console.WriteLine($" - {rating.Source}: {rating.Value}");
+//                    }
+//                }
+
+//                Console.WriteLine("-----------------------");
+//            }
+//        }
+
+//        // Método auxiliar para convertir una cadena separada por comas en una lista
+//        static List<string> ConvertToList(string commaSeparatedValues)
+//        {
+//            if (string.IsNullOrEmpty(commaSeparatedValues))
+//            {
+//                return new List<string>();
+//            }
+//            return new List<string>(commaSeparatedValues.Split(','));
+//        }
+//    }
+//}
+
+
+
+namespace peliculas.carga
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+
+
+
+            //REGIÓN CONEXIÓN Y DATOS DE LA COMUNIDAD
+            int numPeliculasCargar = 10;
+
+
+            string pathOAuth = @"Config\oAuth.config";
+            ResourceApi mResourceApi = new ResourceApi(Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, pathOAuth));
+
+            Lector lector = new Lector();
+            Cargador cargador = new Cargador();
+            List<PeliculaDTO> l_PeliculaDTO = lector.LeerPeliculas(numPeliculasCargar);
+
+            // Inicializamos los HashSets para guardar nombres únicos
+            HashSet<string> l_nombreGeneros = new HashSet<string>();
+            HashSet<string> l_nombrePersonas = new HashSet<string>();
+
+
+            // Inicializamos una lista para almacenar películas completas con todos sus atributos
+            List<Movie> l_peliculas = new List<Movie>();
+
+            // Procesar las películas
+            foreach (var peliculaDTO in l_PeliculaDTO)
+            {
+                // Crear una nueva instancia de Movie
+                string identificador = Guid.NewGuid().ToString();
+                Movie peliculaKG = new Movie(identificador);
+
+                // Asignar título y descripción
+                peliculaKG.Schema_name = peliculaDTO.Title;
+                peliculaKG.Schema_description = peliculaDTO.Plot;
+
+                // Asignar productora
+                if (!string.IsNullOrEmpty(peliculaDTO.Production))
+                {
+                    peliculaKG.Schema_productionCompany = peliculaDTO.Production;
+                }
+
+                // Asignar el año
+                if (!string.IsNullOrEmpty(peliculaDTO.Year))
+                {
+                    peliculaKG.Schema_recordedAt = peliculaDTO.Year;
+                }
+
+                // Procesar y asignar los países
+                if (!string.IsNullOrEmpty(peliculaDTO.Country))
+                {
+                    string[] paises = peliculaDTO.Country.Split(',');
+                    foreach (var pais in paises)
+                    {
+                        peliculaKG.AddCountry(pais.Trim());
+                    }
+                }
+
+                // Asignar la duración
+                if (!string.IsNullOrEmpty(peliculaDTO.Runtime) && int.TryParse(peliculaDTO.Runtime, out int duration))
+                
+                    peliculaKG.Schema_duration = duration;
+                }
+
+                // Procesar y asignar los idiomas
+                if (!string.IsNullOrEmpty(peliculaDTO.Language))
+                {
+                    string[] idiomas = peliculaDTO.Language.Split(',');
+                    foreach (var idioma in idiomas)
+                    {
+                        peliculaKG.AddLanguage(idioma.Trim());
+                    }
+                }
+
+                // Asignar imagen (poster)
+                if (!string.IsNullOrEmpty(peliculaDTO.Poster))
+                {
+                    peliculaKG.Schema_image = peliculaDTO.Poster;
+                }
+
+                // Asignar premios (Awards)
+                if (!string.IsNullOrEmpty(peliculaDTO.Awards))
+                {
+                    peliculaKG.Schema_award = peliculaDTO.Awards;
+                }
+
+                // Asignar calificación IMDb (imdbRating)
+                if (!string.IsNullOrEmpty(peliculaDTO.imdbRating))
+                {
+                    peliculaKG.Schema_aggregateRating = peliculaDTO.imdbRating;
+                }
+
+                // Asignar clasificación de contenido (Rated)
+                if (!string.IsNullOrEmpty(peliculaDTO.Rated))
+                {
+                    peliculaKG.Schema_contentRating = peliculaDTO.Rated;
+                }
+
+                // Asignar sitio web (Website)
+                if (!string.IsNullOrEmpty(peliculaDTO.Website))
+                {
+                    peliculaKG.Schema_url = peliculaDTO.Website;
+                }
+
+                // Asignar fecha de lanzamiento (Released)
+                if (!string.IsNullOrEmpty(peliculaDTO.Released))
+                {
+                    peliculaKG.Schema_datePublished = peliculaDTO.Released;
+                }
+
+                
+
+
+            // Procesar los géneros
+            if (peliculaDTO.Genre != null)
+                {
+                    string[] generos = peliculaDTO.Genre.Split(',');
+                    foreach (var genero in generos)
+                    {
+                        l_nombreGeneros.Add(genero.Trim());
+                    }
+                }
+
+                // Procesar los directores
+                if (peliculaDTO.Director != null)
+                {
+                    string[] directores = peliculaDTO.Director.Split(',');
+                    foreach (var director in directores)
+                    {
+                        l_nombrePersonas.Add(director.Trim());
+                    }
+                }
+
+                // Procesar los escritores
+                if (peliculaDTO.Writer != null)
+                {
+                    string[] escritores = peliculaDTO.Writer.Split(',');
+                    foreach (var escritor in escritores)
+                    {
+                        l_nombrePersonas.Add(escritor.Trim());
+                    }
+                }
+
+                // Procesar los actores
+                if (peliculaDTO.Actors != null)
+                {
+                    string[] actores = peliculaDTO.Actors.Split(',');
+                    foreach (var actor in actores)
+                    {
+                        l_nombrePersonas.Add(actor.Trim());
+                    }
+                }
+
+                // Agregar película a la lista de películas procesadas
+                l_peliculas.Add(peliculaKG);
+            }
+
+
+
+            // Cargar la lista de géneros
+            List<Genre> l_genre = cargador.CargarGeneros(mResourceApi, l_nombreGeneros);
+
+            // Cargar la lista de personas
+            List<Person> l_personas = cargador.CargarPersonas(mResourceApi, l_nombrePersonas);
+
+
+
+
+            //// Cargar la lista de peliculas
+            //List<Movie> l_peliculas = cargador.CargarPeliculas(mResourceApi, l_nombrePeliculas);
+
+            // Cargar la lista de películas
+            List<Movie> peliculasCargadas = cargador.CargarPeliculas(mResourceApi, l_peliculas);
+        }
+    }
+}
+
+
